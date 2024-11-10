@@ -7,7 +7,7 @@ SRCS = main.cpp MazeGenerator.cpp PathfinderBFS.cpp disjointSet.cpp output.cpp
 OBJS = main.o MazeGenerator.o PathfinderBFS.o disjointSet.o output.o
 
 # Output executable name
-TARGET = maze_solver
+TARGET = Project3
 
 # Default target
 all: $(TARGET)
