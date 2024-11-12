@@ -58,6 +58,10 @@ void MazeGenerator::removeWalls(uint8_t maze[][MAX_COLS], std::vector<std::pair<
             }
 
             disjointSet.join(cell1, cell2);
+
+            /*------DEBUG------------*/
+            std::cout << "Removed wall between (" << r1 << ", " << c1 << ") and (" << r2 << ", " << c2 << ")" << std::endl;
+            /*------DEBUG------------*/
         }
     }
 }

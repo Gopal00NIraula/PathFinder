@@ -6,6 +6,7 @@
 #define SOLUTION_PATHFINDER_H
 
 #include <cstdint>
+#include <iostream>
 
 const int
         MAX_ROWS = 50,

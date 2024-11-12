@@ -16,6 +16,11 @@ bool PathfinderBFS::findPath(uint8_t maze[][MAX_COLS]) {
 
     while (!bfsQueue.empty()) {
         Cell current = bfsQueue.front();
+
+        /*------DEBUG------------*/
+        std::cout << "Visiting Cell: (" << current.row << ", " << current.col << ")" << std::endl;
+        /*------DEBUG------------*/
+
         bfsQueue.pop();
         path.push_back(current);
 
@@ -56,6 +61,48 @@ bool PathfinderBFS::isValidMove(int row, int col, uint8_t maze[][MAX_COLS], uint
     if (row < rows - 1 && (maze[row][col] & WALL_DOWN) && (maze[row + 1][col] & WALL_UP)) return false;
     if (col > 0 && (maze[row][col] & WALL_LEFT) && (maze[row][col - 1] & WALL_RIGHT)) return false;
     if (col < cols - 1 && (maze[row][col] & WALL_RIGHT) && (maze[row][col + 1] & WALL_LEFT)) return false;
+
+/*------DEBUG------------*/
+    std::cout << "Checking move to (" << row << ", " << col << "): ";
+
+if (row < 0 || row >= rows || col < 0 || col >= cols) {
+    std::cout << "Out of bounds." << std::endl;
+    return false;
+}
+if (visited[row][col]) {
+    std::cout << "Already visited." << std::endl;
+    return false;
+}
+
+// Print the wall status of the current and next cell
+std::cout << "Current cell walls: "
+          << "UP: " << (maze[row][col] & WALL_UP)
+          << " RIGHT: " << (maze[row][col] & WALL_RIGHT)
+          << " DOWN: " << (maze[row][col] & WALL_DOWN)
+          << " LEFT: " << (maze[row][col] & WALL_LEFT) << std::endl;
+
+// Check wall collisions
+if (row > 0 && (maze[row][col] & WALL_UP) && (maze[row - 1][col] & WALL_DOWN)) {
+    std::cout << "Blocked by upper wall." << std::endl;
+    return false;
+}
+if (row < rows - 1 && (maze[row][col] & WALL_DOWN) && (maze[row + 1][col] & WALL_UP)) {
+    std::cout << "Blocked by lower wall." << std::endl;
+    return false;
+}
+if (col > 0 && (maze[row][col] & WALL_LEFT) && (maze[row][col - 1] & WALL_RIGHT)) {
+    std::cout << "Blocked by left wall." << std::endl;
+    return false;
+}
+if (col < cols - 1 && (maze[row][col] & WALL_RIGHT) && (maze[row][col + 1] & WALL_LEFT)) {
+    std::cout << "Blocked by right wall." << std::endl;
+    return false;
+}
+
+std::cout << "Move valid." << std::endl;
+return true;
+
+/*------DEBUG------------*/
 
     return true;
 }

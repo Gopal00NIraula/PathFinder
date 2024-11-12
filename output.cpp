@@ -27,7 +27,7 @@ void drawLine2(ofstream outFile,int r1,int c1,int r2,int c2) {
 
 void drawMaze(ofstream &outFile,uint8_t maze[][MAX_COLS],int nR,int nC,
               bool drawSolution,bool drawDeadEnds) {
-    uint32_t i,j;
+    int i,j;
 
     outFile << "newpath\n"
             << "54 " << 762 - (nR * 10 + 54) << " moveto\n"
