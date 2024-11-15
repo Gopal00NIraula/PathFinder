@@ -18,13 +18,23 @@ bool PathfinderBFS::findPath(uint8_t maze[][MAX_COLS]) {
         Cell current = bfsQueue.front();
 
         /*------DEBUG------------*/
-        std::cout << "Visiting Cell: (" << current.row << ", " << current.col << ")" << std::endl;
+        // std::cout << "Visiting Cell: (" << current.row << ", " << current.col << ")" << std::endl;
         /*------DEBUG------------*/
 
         bfsQueue.pop();
         path.push_back(current);
 
+        /*------DEBUG------------*/
+        // std::cout << "Checkig is push and pop gave any changes: (" << current.row << ", " << current.col << ")" << std::endl;
+        /*------DEBUG------------*/
+
         if (current.row == end.row && current.col == end.col) {
+
+      
+        /*------DEBUG------------*/
+        // std::cout << "Path found through the maze. \n" << std::endl;
+        /*------DEBUG------------*/
+
             markPath(maze, path);
             return true; // Path found
         }
@@ -36,13 +46,35 @@ bool PathfinderBFS::findPath(uint8_t maze[][MAX_COLS]) {
             int newRow = current.row + rowMoves[i];
             int newCol = current.col + colMoves[i];
 
+
+        /*------DEBUG------------*/
+        // std::cout << "Checking Cell: (" << newRow << ", " << newCol << ")" << std::endl;
+        /*------DEBUG------------*/
+
+
             if (isValidMove(newRow, newCol, maze, visited)) {
+
+               
+                /*------DEBUG------------*/
+                std::cout << "Valid move to: (" << newRow << ", " << newCol << ")" << std::endl;
+                /*------DEBUG------------*/
+
+
                 visited[newRow][newCol] = 1;
                 bfsQueue.push({newRow, newCol});
             }
+
+            /*------DEBUG------------*/
+            // else{
+            // std::cout << "Invalid move to: (" << newRow << ", " << newCol << ")" << std::endl;
+            /*------DEBUG------------*/
+            // }
         }
     }
 
+        /*------DEBUG------------*/
+        // std::cout << "No path found" << std::endl;
+        /*------DEBUG------------*/
     return false; // No path found
 }
 
@@ -53,16 +85,20 @@ void PathfinderBFS::markPath(uint8_t maze[][MAX_COLS], const std::vector<Cell>& 
 }
 
 bool PathfinderBFS::isValidMove(int row, int col, uint8_t maze[][MAX_COLS], uint8_t visited[][MAX_COLS]) {
+    // Check boundaries
     if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
+
+    // Check if the cell is already visited
     if (visited[row][col]) return false;
 
-    // Check if the move is allowed by checking the walls
-    if (row > 0 && (maze[row][col] & WALL_UP) && (maze[row - 1][col] & WALL_DOWN)) return false;
-    if (row < rows - 1 && (maze[row][col] & WALL_DOWN) && (maze[row + 1][col] & WALL_UP)) return false;
-    if (col > 0 && (maze[row][col] & WALL_LEFT) && (maze[row][col - 1] & WALL_RIGHT)) return false;
-    if (col < cols - 1 && (maze[row][col] & WALL_RIGHT) && (maze[row][col + 1] & WALL_LEFT)) return false;
+    // Check if the cell is completely enclosed by walls
+    if ((maze[row][col] & (WALL_UP | WALL_DOWN | WALL_LEFT | WALL_RIGHT)) == (WALL_UP | WALL_DOWN | WALL_LEFT | WALL_RIGHT)) 
+        return false;
 
-/*------DEBUG------------*/
+    return true;
+}
+
+/*------DEBUG------------
     std::cout << "Checking move to (" << row << ", " << col << "): ";
 
 if (row < 0 || row >= rows || col < 0 || col >= cols) {
@@ -102,7 +138,6 @@ if (col < cols - 1 && (maze[row][col] & WALL_RIGHT) && (maze[row][col + 1] & WAL
 std::cout << "Move valid." << std::endl;
 return true;
 
-/*------DEBUG------------*/
+------DEBUG------------*/
 
-    return true;
-}
+

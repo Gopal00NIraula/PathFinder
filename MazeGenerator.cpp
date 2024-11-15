@@ -1,71 +1,62 @@
 #include "MazeGenerator.h"
-#include <algorithm>
+#include "disjointSet.h"
+#include "Sampler.h"
+#include "pathfinder.h"
+#include <iostream>
 
-MazeGenerator::MazeGenerator(int rows, int cols)
-    : rows(rows), cols(cols), disjointSet(rows * cols) {}
+MazeGenerator::MazeGenerator(int rows, int cols) : rows(rows), cols(cols) {}
 
-void MazeGenerator::generateMaze(uint8_t maze[][MAX_COLS]) {
-    std::vector<std::pair<int, int>> walls;
-    initializeWalls(walls);
-    std::shuffle(walls.begin(), walls.end(), std::mt19937{std::random_device{}()});
-
-    // Initialize all cells as enclosed by walls
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            maze[i][j] = WALL_UP | WALL_RIGHT | WALL_DOWN | WALL_LEFT;
+void MazeGenerator::generateMaze(uint8_t maze[][MAX_COLS], int extraWalls) {
+    // Initialize maze with all walls
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            maze[r][c] = WALL_UP | WALL_RIGHT | WALL_DOWN | WALL_LEFT;
         }
     }
 
-    removeWalls(maze, walls);
-}
+    // Generate spanning tree using disjoint sets
+    DisjointSet ds(rows * cols);
+    int numVerticalWalls = rows * (cols - 1);
+    int numHorizontalWalls = (rows - 1) * cols;
+    Sampler walls(numVerticalWalls + numHorizontalWalls);
 
-void MazeGenerator::initializeWalls(std::vector<std::pair<int, int>>& walls) {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            if (j + 1 < cols) // Right wall
-                walls.emplace_back(cellIndex(i, j), cellIndex(i, j + 1));
-            if (i + 1 < rows) // Down wall
-                walls.emplace_back(cellIndex(i, j), cellIndex(i + 1, j));
-        }
+    // Remove walls to form a tree
+    for (int i = 0; i < (rows * cols - 1); i++) {
+        int wall = walls.getSample();
+        removeWall(wall, maze, ds, numVerticalWalls, numHorizontalWalls);
+    }
+
+    // Remove extra walls to introduce loops
+    for (int i = 0; i < extraWalls; i++) {
+        int wall = walls.getSample();
+        removeWall(wall, maze, ds, numVerticalWalls, numHorizontalWalls);
     }
 }
 
-void MazeGenerator::removeWalls(uint8_t maze[][MAX_COLS], std::vector<std::pair<int, int>>& walls) {
-    for (const auto& wall : walls) {
-        int cell1 = wall.first;
-        int cell2 = wall.second;
+// Function to remove a wall between two cells
+void MazeGenerator::removeWall(int wall, uint8_t maze[][MAX_COLS], DisjointSet &ds, int numVerticalWalls, int numHorizontalWalls) {
+    int r1, c1, r2, c2;
 
-        if (disjointSet.find(cell1) != disjointSet.find(cell2)) {
-            int r1 = cell1 / cols, c1 = cell1 % cols;
-            int r2 = cell2 / cols, c2 = cell2 % cols;
-
-            if (r1 == r2) { // Horizontal wall
-                if (c1 < c2) {
-                    maze[r1][c1] &= ~WALL_RIGHT;
-                    maze[r2][c2] &= ~WALL_LEFT;
-                } else {
-                    maze[r1][c1] &= ~WALL_LEFT;
-                    maze[r2][c2] &= ~WALL_RIGHT;
-                }
-            } else if (c1 == c2) { // Vertical wall
-                if (r1 < r2) {
-                    maze[r1][c1] &= ~WALL_DOWN;
-                    maze[r2][c2] &= ~WALL_UP;
-                } else {
-                    maze[r1][c1] &= ~WALL_UP;
-                    maze[r2][c2] &= ~WALL_DOWN;
-                }
-            }
-
-            disjointSet.join(cell1, cell2);
-
-            /*------DEBUG------------*/
-            std::cout << "Removed wall between (" << r1 << ", " << c1 << ") and (" << r2 << ", " << c2 << ")" << std::endl;
-            /*------DEBUG------------*/
+    if (wall < numVerticalWalls) { // Vertical wall
+        r1 = wall / (cols - 1);
+        c1 = wall % (cols - 1);
+        r2 = r1;
+        c2 = c1 + 1;
+        if (ds.find(r1 * cols + c1) != ds.find(r2 * cols + c2)) {
+            ds.join(r1 * cols + c1, r2 * cols + c2);
+            maze[r1][c1] &= ~WALL_RIGHT;
+            maze[r2][c2] &= ~WALL_LEFT;
+        }
+    } else { // Horizontal wall
+        wall -= numVerticalWalls;
+        r1 = wall / cols;
+        c1 = wall % cols;
+        r2 = r1 + 1;
+        c2 = c1;
+        if (ds.find(r1 * cols + c1) != ds.find(r2 * cols + c2)) {
+            ds.join(r1 * cols + c1, r2 * cols + c2);
+            maze[r1][c1] &= ~WALL_DOWN;
+            maze[r2][c2] &= ~WALL_UP;
         }
     }
-}
-
-int MazeGenerator::cellIndex(int row, int col) const {
-    return row * cols + col;
 }

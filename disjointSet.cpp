@@ -1,7 +1,3 @@
-//
-// Created by scsiet on 10/18/24.
-//
-
 #include "disjointSet.h"
 
 DisjointSet::DisjointSet(uint32_t n) {

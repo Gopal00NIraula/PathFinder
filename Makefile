@@ -1,40 +1,23 @@
-# Compiler and flags
-CXX = g++
-CXXFLAGS = -std=c++11 -Wall
+Project3: main.o MazeGenerator.o PathfinderBFS.o disjointSet.o Sampler.o output.o
+	g++ -std=c++11 -Wall -o project3 main.o MazeGenerator.o PathfinderBFS.o disjointSet.o Sampler.o output.o
 
-# Source and object files
-SRCS = main.cpp MazeGenerator.cpp PathfinderBFS.cpp disjointSet.cpp output.cpp
-OBJS = main.o MazeGenerator.o PathfinderBFS.o disjointSet.o output.o
+main.o: main.cpp MazeGenerator.h PathfinderBFS.h pathfinder.h
+	g++ -c -std=c++11 -Wall main.cpp
 
-# Output executable name
-TARGET = Project3
+MazeGenerator.o: MazeGenerator.cpp MazeGenerator.h disjointSet.h Sampler.h pathfinder.h
+	g++ -c -std=c++11 -Wall MazeGenerator.cpp
 
-# Default target
-all: $(TARGET)
-
-# Link object files to create the executable
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
-
-# Compile .cpp files into .o files
-main.o: main.cpp
-	$(CXX) $(CXXFLAGS) -c main.cpp
-
-MazeGenerator.o: MazeGenerator.cpp MazeGenerator.h
-	$(CXX) $(CXXFLAGS) -c MazeGenerator.cpp
-
-PathfinderBFS.o: PathfinderBFS.cpp PathfinderBFS.h
-	$(CXX) $(CXXFLAGS) -c PathfinderBFS.cpp
+PathfinderBFS.o: PathfinderBFS.cpp PathfinderBFS.h pathfinder.h
+	g++ -c -std=c++11 -Wall PathfinderBFS.cpp
 
 disjointSet.o: disjointSet.cpp disjointSet.h
-	$(CXX) $(CXXFLAGS) -c disjointSet.cpp
+	g++ -c -std=c++11 -Wall disjointSet.cpp
+
+Sampler.o: Sampler.cpp Sampler.h
+	g++ -c -std=c++11 -Wall Sampler.cpp
 
 output.o: output.cpp pathfinder.h
-	$(CXX) $(CXXFLAGS) -c output.cpp
+	g++ -c -std=c++11 -Wall output.cpp
 
-# Clean object files and executable
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-# Phony targets
-.PHONY: all clean
+	rm -f *.o project3

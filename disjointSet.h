@@ -1,7 +1,3 @@
-//
-// Created by scsiet on 10/18/24.
-//
-
 #ifndef DISJOINTSET_H
 #define DISJOINTSET_H
 
