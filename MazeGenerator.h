@@ -14,7 +14,7 @@ public:
 private:
     int rows;
     int cols;
-    void removeWall(int wall, uint8_t maze[][MAX_COLS], DisjointSet &ds, int numVerticalWalls, int numHorizontalWalls);
+    bool removeWall(int wall, uint8_t maze[][MAX_COLS], DisjointSet &ds, int numVerticalWalls, int numHorizontalWalls);
 };
 
 #endif // MAZE_GENERATOR_H
