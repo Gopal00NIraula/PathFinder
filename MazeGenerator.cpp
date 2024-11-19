@@ -2,7 +2,6 @@
 #include "disjointSet.h"
 #include "Sampler.h"
 #include "pathfinder.h"
-#include <iostream>
 
 MazeGenerator::MazeGenerator(int rows, int cols) : rows(rows), cols(cols) {}
 
@@ -14,13 +13,14 @@ void MazeGenerator::generateMaze(uint8_t maze[][MAX_COLS], int extraWalls) {
         }
     }
 
-    // Generate spanning tree using disjoint sets
+    // Create a disjoint set to track connected components
     DisjointSet ds(rows * cols);
+
     int numVerticalWalls = rows * (cols - 1);
     int numHorizontalWalls = (rows - 1) * cols;
     Sampler walls(numVerticalWalls + numHorizontalWalls);
 
-    // Remove walls to form a tree
+    // Remove walls to form a spanning tree
     for (int i = 0; i < (rows * cols - 1); i++) {
         int wall = walls.getSample();
         removeWall(wall, maze, ds, numVerticalWalls, numHorizontalWalls);
@@ -33,7 +33,6 @@ void MazeGenerator::generateMaze(uint8_t maze[][MAX_COLS], int extraWalls) {
     }
 }
 
-// Function to remove a wall between two cells
 void MazeGenerator::removeWall(int wall, uint8_t maze[][MAX_COLS], DisjointSet &ds, int numVerticalWalls, int numHorizontalWalls) {
     int r1, c1, r2, c2;
 
